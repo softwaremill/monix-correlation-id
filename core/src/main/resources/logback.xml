@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%replace([%X{cid}] ){'\[\] ', ''})[%thread] %-5level %logger{5} - %msg%n</pattern>
+        </encoder>
+
+        <filter class="com.softwaremill.monix.SetCorrelationIdInMDCFilter" />
+    </appender>
+
+    <logger name="com.softwaremill.zlevator" level="${LOG_LEVEL:-INFO}">
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
