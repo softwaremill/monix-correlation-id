@@ -6,8 +6,9 @@ import com.typesafe.scalalogging.StrictLogging
 import monix.eval.Task
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
-import org.http4s.server.blaze.BlazeBuilder
+import org.http4s.server.blaze.BlazeServerBuilder
 import monix.execution.Scheduler.Implicits.global
+import org.http4s.implicits._
 
 // -Dmonix.environment.localContextPropagation=1
 object Server1 extends App with StrictLogging {
@@ -25,9 +26,9 @@ object Server1 extends App with StrictLogging {
       }
   }
 
-  BlazeBuilder[Task]
+  BlazeServerBuilder[Task]
     .bindHttp(8081)
-    .mountService(CorrelationId.setCorrelationIdMiddleware(service), "/")
+    .withHttpApp(CorrelationId.setCorrelationIdMiddleware(service).orNotFound)
     .serve
     .compile
     .drain

@@ -1,14 +1,14 @@
 package com.softwaremill.monix
 
-import com.softwaremill.sttp.SttpBackend
+import com.softwaremill.sttp.{SttpBackend, _}
+import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.typesafe.scalalogging.StrictLogging
 import monix.eval.Task
+import monix.execution.Scheduler.Implicits.global
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
-import com.softwaremill.sttp._
-import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
-import org.http4s.server.blaze.BlazeBuilder
-import monix.execution.Scheduler.Implicits.global
+import org.http4s.implicits._
+import org.http4s.server.blaze.BlazeServerBuilder
 
 // -Dmonix.environment.localContextPropagation=1
 object Server2 extends App with StrictLogging {
@@ -26,9 +26,9 @@ object Server2 extends App with StrictLogging {
       }
   }
 
-  BlazeBuilder[Task]
+  BlazeServerBuilder[Task]
     .bindHttp(8082)
-    .mountService(CorrelationId.setCorrelationIdMiddleware(service), "/")
+    .withHttpApp(CorrelationId.setCorrelationIdMiddleware(service).orNotFound)
     .serve
     .compile
     .drain

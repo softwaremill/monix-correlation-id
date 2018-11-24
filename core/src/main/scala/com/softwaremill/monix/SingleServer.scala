@@ -11,7 +11,8 @@ import monix.execution.Scheduler.Implicits.global
 import org.flywaydb.core.Flyway
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
-import org.http4s.server.blaze.BlazeBuilder
+import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.implicits._
 
 // -Dmonix.environment.localContextPropagation=1
 object SingleServer extends App with StrictLogging {
@@ -49,9 +50,9 @@ object SingleServer extends App with StrictLogging {
           }
     }
 
-    BlazeBuilder[Task]
+    BlazeServerBuilder[Task]
       .bindHttp(8080)
-      .mountService(CorrelationId.setCorrelationIdMiddleware(service), "/")
+      .withHttpApp(CorrelationId.setCorrelationIdMiddleware(service).orNotFound)
       .resource.use { _ =>
       Task {
         import com.softwaremill.sttp._
