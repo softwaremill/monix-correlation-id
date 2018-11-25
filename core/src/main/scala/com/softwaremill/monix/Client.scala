@@ -11,7 +11,7 @@ object Client extends App with StrictLogging {
 
   CorrelationId.withNew {
     Task(logger.info("Result: " + sttp.get(uri"http://localhost:8081/test1").send().runSyncUnsafe().unsafeBody))
-  }
+  }.runSyncUnsafe()
 
   backend.close()
 }

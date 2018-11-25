@@ -17,6 +17,8 @@ lazy val core: Project = (project in file("core"))
   .settings(commonSettings: _*)
   .settings(
     name := "core",
+    javaOptions += "-Dmonix.environment.localContextPropagation=1",
+    fork in run := true,
     libraryDependencies ++= Seq(
       "io.monix" %% "monix" % "3.0.0-RC2",
       "org.http4s" %% "http4s-dsl" % http4sVersion,
