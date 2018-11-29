@@ -10,8 +10,9 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import monix.execution.Scheduler.Implicits.global
 import org.http4s.implicits._
 
-// -Dmonix.environment.localContextPropagation=1
 object Server1 extends App with StrictLogging {
+  CorrelationId.init()
+
   implicit val backend: SttpBackend[Task, Nothing] = new SetCorrelationIdBackend(AsyncHttpClientCatsBackend[Task]())
 
   val dsl = Http4sDsl[Task]

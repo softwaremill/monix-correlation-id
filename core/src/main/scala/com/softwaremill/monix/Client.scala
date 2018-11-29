@@ -7,6 +7,8 @@ import monix.eval.Task
 import monix.execution.Scheduler.Implicits.global
 
 object Client extends App with StrictLogging {
+  CorrelationId.init()
+
   implicit val backend: SttpBackend[Task, Nothing] = new SetCorrelationIdBackend(AsyncHttpClientCatsBackend[Task]())
 
   CorrelationId.withNew {
@@ -17,6 +19,8 @@ object Client extends App with StrictLogging {
 }
 
 object StressClient extends App with StrictLogging {
+  CorrelationId.init()
+
   implicit val backend: SttpBackend[Task, Nothing] = new SetCorrelationIdBackend(AsyncHttpClientCatsBackend[Task]())
 
   def doTest: Task[Unit] = {

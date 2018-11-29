@@ -14,8 +14,9 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
 
-// -Dmonix.environment.localContextPropagation=1
 object SingleServer extends App with StrictLogging {
+  CorrelationId.init()
+
   Flyway
     .configure()
     .dataSource("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "")

@@ -1,9 +1,6 @@
 package com.softwaremill.monix
 
 import cats.data.Kleisli
-import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.core.filter.Filter
-import ch.qos.logback.core.spi.FilterReply
 import com.softwaremill.monix.CorrelationId.CorrelationIdHeader
 import com.softwaremill.sttp
 import com.softwaremill.sttp.{MonadError, Response, SttpBackend}
@@ -31,12 +28,22 @@ object CorrelationId extends StrictLogging {
       case Some(cidHeader) => cidHeader.value
     }
 
-    localCid.update(Some(cid)) // TODO: not cleared
+    update(cid) // TODO: not cleared
     logger.info("Starting request")
     service(req)
   }
 
   private val random = new Random()
+
+  private def update(cid: String): Unit = {
+    localCid.update(Some(cid))
+    MDC.put("cid", cid)
+  }
+
+  private def clear(): Unit = {
+    localCid.clear()
+    MDC.remove("cid")
+  }
 
   private def newCorrelationId(): String = {
     def randomUpperCaseChar() = (random.nextInt(91 - 65) + 65).toChar
@@ -47,11 +54,16 @@ object CorrelationId extends StrictLogging {
   }
 
   def withNew[T](th: Task[T]): Task[T] = {
-    Task(localCid.update(Some(newCorrelationId()))).flatMap { _ =>
+    Task(update(newCorrelationId())).flatMap { _ =>
       th.doOnFinish { _ =>
-        Task(localCid.clear())
+        Task(clear())
       }
     }
+  }
+
+  def init(): Unit = {
+    MonixMDCAdapter.init()
+    System.setProperty("monix.environment.localContextPropagation", "1")
   }
 }
 
@@ -69,11 +81,4 @@ class SetCorrelationIdBackend(delegate: SttpBackend[Task, Nothing]) extends Sttp
   override def close(): Unit = delegate.close()
 
   override def responseMonad: MonadError[Task] = delegate.responseMonad
-}
-
-class SetCorrelationIdInMDCFilter extends Filter[ILoggingEvent] {
-  override def decide(event: ILoggingEvent): FilterReply = {
-    CorrelationId().foreach(MDC.put("cid", _)) // TODO: not cleared
-    FilterReply.NEUTRAL
-  }
 }

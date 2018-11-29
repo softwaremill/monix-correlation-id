@@ -4,8 +4,6 @@
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %boldYellow(%replace([%X{cid}] ){'\[\] ', ''})[%thread] %-5level %logger{5} - %msg%n</pattern>
         </encoder>
-
-        <filter class="com.softwaremill.monix.SetCorrelationIdInMDCFilter" />
     </appender>
 
     <logger name="com.softwaremill.zlevator" level="${LOG_LEVEL:-INFO}">

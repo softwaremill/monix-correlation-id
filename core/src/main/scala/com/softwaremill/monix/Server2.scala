@@ -10,8 +10,9 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 
-// -Dmonix.environment.localContextPropagation=1
 object Server2 extends App with StrictLogging {
+  CorrelationId.init()
+
   implicit val backend: SttpBackend[Task, Nothing] = new SetCorrelationIdBackend(AsyncHttpClientCatsBackend[Task]())
 
   val dsl = Http4sDsl[Task]

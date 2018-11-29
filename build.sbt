@@ -1,5 +1,5 @@
 lazy val commonSettings = commonSmlBuildSettings ++ ossPublishSettings ++ Seq(
-  organization := "com.softwaremill.xxx",
+  organization := "com.softwaremill.monix",
   scalaVersion := "2.12.7"
 )
 
@@ -10,7 +10,7 @@ val doobieVersion = "0.6.0"
 
 lazy val rootProject = (project in file("."))
   .settings(commonSettings: _*)
-  .settings(publishArtifact := false, name := "root")
+  .settings(publishArtifact := false, name := "monix-correlation-id")
   .aggregate(core)
 
 lazy val core: Project = (project in file("core"))
